@@ -1,4 +1,5 @@
 import mysql.connector
+from prettytable import PrettyTable
 
 
 class ConexaoBanco:
@@ -27,7 +28,16 @@ class OperacoesBanco:
 
     def buscar_dados(self, comando):
         self.cursor.execute(comando)
-        return self.cursor.fetchall()
+        tupla = self.cursor.fetchall()
+
+        lista = [list(i) for i in tupla]
+
+        tabela = PrettyTable()
+        tabela.field_names = ['matricula', 'nome', 'cpf']
+        for row in lista:
+            tabela.add_row(row)
+
+        return tabela
 
 
 def exibir_menu():
@@ -36,7 +46,7 @@ def exibir_menu():
     print("2. CREATE")
     print("3. READ")
     print("4. UPDATE")
-    print("5. Sair")
+    print("5. Sair\n")
 
 
 conexao = ConexaoBanco()
@@ -47,14 +57,19 @@ while True:
     opcao = input("Digite o número da opção desejada (1-5): ")
 
     if opcao == "1":  # DELETE
-        nome_aluno_delete = input("Digite o nome do aluno a ser removido: ")
-        comando_delete = f'DELETE FROM alunos WHERE nome = "{nome_aluno_delete}"'
+        matricula_aluno_delete = input("Digite a matricula do aluno a ser removido: ")
+        comando_delete = f'DELETE FROM alunos WHERE matricula = "{matricula_aluno_delete}"'
         operacoes.executar_comando(comando_delete)
 
     elif opcao == "2":  # CREATE
         nome_aluno_create = input("Digite o nome do novo aluno: ")
-        matricula_create = input("Digite o matricula do novo aluno: ")
-        comando_create = f'INSERT INTO alunos (nome, matricula) VALUES ("{nome_aluno_create}", {matricula_create})'
+        matricula_create = input("Digite a matricula do novo aluno: ")
+        cpf_create = input("Digite o CPF do novo aluno: ")
+
+        comando_create = (f'INSERT INTO alunos (nome, matricula, cpf) VALUES ('
+                          f'"{nome_aluno_create}", '
+                          f'{matricula_create}, '
+                          f'"{cpf_create}")')
         operacoes.executar_comando(comando_create)
 
     elif opcao == "3":  # READ
@@ -64,8 +79,8 @@ while True:
 
     elif opcao == "4":  # UPDATE
         nome_aluno_update = input("Digite o nome do produto a ser atualizado: ")
-        codigo_update = input("Digite o novo valor do produto: ")
-        comando_update = f'UPDATE vendas SET valor = {codigo_update} WHERE nome_produto = "{nome_aluno_update}"'
+        matricula_update = input("Digite a nova matricula do aluno: ")
+        comando_update = f'UPDATE alunos SET matricula = {matricula_update} WHERE nome = "{nome_aluno_update}"'
         operacoes.executar_comando(comando_update)
 
     elif opcao == "5":  # Sair
